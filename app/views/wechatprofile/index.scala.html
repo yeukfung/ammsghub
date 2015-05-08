@@ -1,0 +1,37 @@
+@* index Template File *@
+@(param: Any)
+
+@main("Manage WeChat Profile") {
+
+    <div ng-controller="WeChatProfileCtrl">
+      <!-- create form -->
+      <form>
+      	
+        <p><label for="appId">appId:</label><input id="appId" ng-model="createForm.appId"/></p>
+		<p><label for="secret">secret:</label><input id="secret" ng-model="createForm.secret"/></p>
+		<p><label for="token">token:</label><input id="token" ng-model="createForm.token"/></p>
+		<p><label for="isActive">isActive:</label><input type="checkbox" id="isActive" ng-model="createForm.isActive" checked/></p>
+		<p><label for="description">desc:</label><input id="description" ng-model="createForm.description" /></p>
+        
+        <button ng-click="create()">Create</button>
+      </form>
+      
+      <hr/>
+      <!-- List of persons with update/delete buttons -->
+      
+      <table>
+        <thead><th>appId</th><th>secret</th><th>token</th><th>description</th><th>isActive</th></thead>
+        <tbody>
+          <tr ng-repeat="item in items">
+            <td><input ng-model="item.appId"/></td>
+            <td><input ng-model="item.secret"/></td>
+            <td><input ng-model="item.token"/></td>
+            <td><input ng-model="item.description"/></td>
+            <td><input type="checkbox" ng-model="item.isActive"/></td>
+            <td><button ng-click="update(item)">Update</button><button ng-click="remove(item)">Delete</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+}
