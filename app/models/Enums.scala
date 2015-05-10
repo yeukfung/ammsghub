@@ -37,8 +37,9 @@ sealed trait MessageStatus extends MessageStatus.Value
 object MessageStatus extends Enum[MessageStatus] with SimpleEnumJson[MessageStatus] {
   case object New extends MessageStatus
   case object Read extends MessageStatus
+  case object Notified extends MessageStatus
   case object Error extends MessageStatus
-  val values = List(New, Read, Error)
+  val values = List(New, Read, Notified, Error)
 }
 
 

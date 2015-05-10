@@ -12,4 +12,6 @@ object ProfileController extends Controller {
   def wechatCRUD = Action {
     Ok(views.html.wechatprofile.index())
   }
+  
+  
 }
