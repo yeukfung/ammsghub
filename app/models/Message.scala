@@ -62,7 +62,7 @@ object Message {
   def readMessage(appId: String, msgId: String) = {
     WeChatMessageCRUD.res.get(BSONObjectID(msgId)) map {
       case res @ Some((m, id)) if m.appId == appId =>
-        updateMsgStatus(msgId, MessageStatus.Read)
+        if (m.status != MessageStatus.Read) updateMsgStatus(msgId, MessageStatus.Read)
         res
     }
   }
