@@ -8,6 +8,9 @@ import akka.actor.Props
 import actors.CallbackRetryActor
 import akka.actor.Cancellable
 import actors.HouseKeepingActor
+import crud.reactivemongo.EnsureIndexMixin
+import crud.reactivemongo.WeChatProfileCRUD
+import crud.reactivemongo.WeChatMessageCRUD
 
 object Global extends GlobalSettings {
 
@@ -23,6 +26,10 @@ object Global extends GlobalSettings {
     val housekeepingActor = Akka.system(app).actorOf(Props[HouseKeepingActor], name = "housekeepingActor")
     callbackHandle = Akka.system(app).scheduler.schedule(1.second, 1.minute, callbackRetryActor, "retry_failed")
     housekeepHandle = Akka.system(app).scheduler.schedule(1.minute, 1.hour, housekeepingActor, "housekeep")
+
+    val ensureIndexes: List[EnsureIndexMixin] = List(WeChatMessageCRUD, WeChatProfileCRUD)
+    ensureIndexes.foreach { _.ensureIndex() }
+
     Logger.info("Application has started")
   }
 

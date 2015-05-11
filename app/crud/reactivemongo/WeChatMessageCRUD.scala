@@ -11,11 +11,14 @@ import reactivemongo.api.indexes.IndexType
 import play.api.libs.json.Json
 import org.joda.time.DateTime
 
-object WeChatMessageCRUD extends ReactiveMongoAutoSourceController[WeChatMessage] {
+object WeChatMessageCRUD extends ReactiveMongoAutoSourceController[WeChatMessage] with EnsureIndexMixin {
   def coll = db.collection[JSONCollection]("wechat_messages")
-  coll.indexesManager.ensure(Index(Seq(("appId", IndexType.Ascending))))
-  coll.indexesManager.ensure(Index(Seq(("created", IndexType.Ascending))))
-  coll.indexesManager.ensure(Index(Seq(("status", IndexType.Ascending), ("appId", IndexType.Ascending))))
+
+  def ensureIndex() {
+    coll.indexesManager.ensure(Index(Seq(("appId", IndexType.Ascending))))
+    coll.indexesManager.ensure(Index(Seq(("created", IndexType.Ascending))))
+    coll.indexesManager.ensure(Index(Seq(("status", IndexType.Ascending), ("appId", IndexType.Ascending))))
+  }
 
   def removeOldMessagesInDay(days: Int) = {
     val q = Json.obj("created" -> Json.obj("$lt" -> DateTime.now().minusDays(days)))
