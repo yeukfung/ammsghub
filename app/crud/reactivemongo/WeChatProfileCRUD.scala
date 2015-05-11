@@ -6,7 +6,11 @@ import play.modules.reactivemongo.json.collection.JSONCollection
 import play.api.Play.current
 import scala.concurrent.ExecutionContext.Implicits.global
 import models.ModelFormats._
+import reactivemongo.api.indexes.Index
+import reactivemongo.api.indexes.IndexType
 
 object WeChatProfileCRUD extends ReactiveMongoAutoSourceController[WeChatProfile] {
   def coll = db.collection[JSONCollection]("wechat_profiles")
+  
+  coll.indexesManager.ensure(Index(Seq(("appId",IndexType.Ascending))))
 }
