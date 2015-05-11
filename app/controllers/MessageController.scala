@@ -16,9 +16,39 @@ import play.api.libs.json.Writes
 import reactivemongo.bson.BSONObjectID
 import play.api.libs.json.JsObject
 import scala.xml.NodeSeq
+import play.api.Play
+import java.io.File
+import java.io.PrintWriter
+import java.nio.charset.CharsetDecoder
+import java.nio.charset.Charset
+import java.io.ByteArrayOutputStream
+import play.api.mvc.Codec
+import java.io.ByteArrayInputStream
 
 trait RequestInfoMixin {
+  import Play.current
   def printReqInfo[T](request: Request[T]) {
+    Logger.debug(s"${request.headers}")
+    Logger.debug(s"${request.body}")
+
+    val in = request.body.toString.getBytes
+    val out = new ByteArrayOutputStream()
+    for (b <- in) {
+      out.write(b)
+    }
+    val gb2312 = out.toString("gb2312")
+    //    val cns = out.toString("CNS")
+    val euccn = out.toString("EUC-CN")
+    val iso = out.toString("ISO-8859-1")
+
+    Logger.debug(s"gb2312 = $gb2312")
+    //    Logger.debug(s"cns = $cns")
+    Logger.debug(s"euc-cn = $euccn")
+    Logger.debug(s"iso = $iso")
+    val writer = new PrintWriter(new File("test.txt"))
+    writer.write(request.body.toString)
+    writer.close()
+
     Logger.info(s"queryString: ${request.queryString.toString}")
     Logger.info(s"requestBody: ${request.body.toString}")
     Logger.info(s"requestTag: ${request.tags.toString}")
@@ -98,11 +128,17 @@ object MessageController extends Controller with RequestInfoMixin {
     root.child.foldLeft(Json.obj())((acc, item) => acc ++ Json.obj(item.label -> item.text))
   }
 
-  def eventReceiver(appId: String) = Action.async { implicit request =>
+  def eventReceiver(appId: String) = Action.async(parse.raw) { implicit request =>
 
     val token = play.api.Play.current.configuration.getString(s"wx.${appId}.token").getOrElse("123dakZFe2d")
+    val bytes = request.body.asBytes(10 * 1024).get
+    val contentAsString = Codec.utf_8.decode(bytes)
+
+    val xml = scala.xml.XML.loadString(contentAsString).asInstanceOf[NodeSeq]
+    Logger.debug("the content: " + contentAsString)
 
     printReqInfo(request)
+
     val echoString = request.getQueryString(PARAM_ECHOSTRING).getOrElse("")
 
     /**
@@ -142,8 +178,8 @@ object MessageController extends Controller with RequestInfoMixin {
          */
         val contentType = request.contentType.getOrElse("")
         val msg = WeChatMessage(appId = appId,
-          raw = request.body.asXml.map(_.toString),
-          json = request.body.asXml.flatMap(mapXmlToJson(_)),
+          raw = Some(contentAsString),
+          json = mapXmlToJson(xml),
           status = MessageStatus.New,
           contentType = contentType,
           created = DateTime.now(),

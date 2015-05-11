@@ -11,6 +11,8 @@ import actors.HouseKeepingActor
 import crud.reactivemongo.EnsureIndexMixin
 import crud.reactivemongo.WeChatProfileCRUD
 import crud.reactivemongo.WeChatMessageCRUD
+import play.api.mvc.RequestHeader
+import play.api.mvc.Handler
 
 object Global extends GlobalSettings {
 
@@ -38,6 +40,14 @@ object Global extends GlobalSettings {
     callbackHandle.cancel()
     housekeepHandle.cancel()
     MessageEventPublisher.removeSubscriptions()
+  }
+
+  override def onRouteRequest(rh: RequestHeader): Option[Handler] = {
+    rh.headers.get("Content-Type") match {
+      case Some("text/xml") => rh.headers
+      case _ => rh.headers
+    }
+    super.onRouteRequest(rh)
   }
 
 }
