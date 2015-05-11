@@ -107,15 +107,23 @@ object MessageController extends Controller with RequestInfoMixin {
     root.child.foldLeft(Json.obj())((acc, item) => acc ++ Json.obj(item.label -> item.text))
   }
 
-  def eventReceiver(appId: String) = Action.async(parse.raw) { implicit request =>
+  def eventReceiver(appId: String) = Action.async { implicit request =>
 
     val token = play.api.Play.current.configuration.getString(s"wx.${appId}.token").getOrElse("123dakZFe2d")
-    val bytes = request.body.asBytes(10 * 1024).get
-    val contentAsString = Codec.utf_8.decode(bytes)
 
-    printReqInfo(request)
-    val xml = if (contentAsString.length() > 0) Some(scala.xml.XML.loadString(contentAsString).asInstanceOf[NodeSeq]) else None
-    Logger.debug("the content: " + contentAsString)
+    val contentAsString = request.body.asXml.map {
+      xml => Codec.iso_8859_1.encode(xml.toString)
+    }.map {
+      bytes =>
+        val contentAsString = Codec.utf_8.decode(bytes)
+        Logger.debug("the content: " + contentAsString)
+
+        val xml = scala.xml.XML.loadString(contentAsString).asInstanceOf[NodeSeq]
+        contentAsString
+    }
+    val xml = contentAsString.map(scala.xml.XML.loadString(_))
+
+    //    printReqInfo(request)
 
     val echoString = request.getQueryString(PARAM_ECHOSTRING).getOrElse("")
 
@@ -134,7 +142,7 @@ object MessageController extends Controller with RequestInfoMixin {
       signature == play.api.libs.Codecs.sha1(concatString)
     }
 
-    Logger.info(s"isValud: ${isValid}")
+    Logger.info(s"isValid: ${isValid}")
     isValid.map {
       case _ =>
         /**
@@ -156,7 +164,7 @@ object MessageController extends Controller with RequestInfoMixin {
          */
         val contentType = request.contentType.getOrElse("")
         val msg = WeChatMessage(appId = appId,
-          raw = Some(contentAsString),
+          raw = contentAsString,
           json = xml.map(mapXmlToJson(_)).getOrElse(None),
           status = MessageStatus.New,
           contentType = contentType,
