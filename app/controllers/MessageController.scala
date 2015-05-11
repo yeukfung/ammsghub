@@ -28,27 +28,6 @@ import java.io.ByteArrayInputStream
 trait RequestInfoMixin {
   import Play.current
   def printReqInfo[T](request: Request[T]) {
-    Logger.debug(s"${request.headers}")
-    Logger.debug(s"${request.body}")
-
-    val in = request.body.toString.getBytes
-    val out = new ByteArrayOutputStream()
-    for (b <- in) {
-      out.write(b)
-    }
-    val gb2312 = out.toString("gb2312")
-    //    val cns = out.toString("CNS")
-    val euccn = out.toString("EUC-CN")
-    val iso = out.toString("ISO-8859-1")
-
-    Logger.debug(s"gb2312 = $gb2312")
-    //    Logger.debug(s"cns = $cns")
-    Logger.debug(s"euc-cn = $euccn")
-    Logger.debug(s"iso = $iso")
-    val writer = new PrintWriter(new File("test.txt"))
-    writer.write(request.body.toString)
-    writer.close()
-
     Logger.info(s"queryString: ${request.queryString.toString}")
     Logger.info(s"requestBody: ${request.body.toString}")
     Logger.info(s"requestTag: ${request.tags.toString}")
