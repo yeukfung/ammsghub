@@ -113,10 +113,9 @@ object MessageController extends Controller with RequestInfoMixin {
     val bytes = request.body.asBytes(10 * 1024).get
     val contentAsString = Codec.utf_8.decode(bytes)
 
-    val xml = scala.xml.XML.loadString(contentAsString).asInstanceOf[NodeSeq]
-    Logger.debug("the content: " + contentAsString)
-
     printReqInfo(request)
+    val xml = if (contentAsString.length() > 0) Some(scala.xml.XML.loadString(contentAsString).asInstanceOf[NodeSeq]) else None
+    Logger.debug("the content: " + contentAsString)
 
     val echoString = request.getQueryString(PARAM_ECHOSTRING).getOrElse("")
 
@@ -158,7 +157,7 @@ object MessageController extends Controller with RequestInfoMixin {
         val contentType = request.contentType.getOrElse("")
         val msg = WeChatMessage(appId = appId,
           raw = Some(contentAsString),
-          json = mapXmlToJson(xml),
+          json = xml.map(mapXmlToJson(_)).getOrElse(None),
           status = MessageStatus.New,
           contentType = contentType,
           created = DateTime.now(),
