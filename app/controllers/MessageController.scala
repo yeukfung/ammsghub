@@ -24,6 +24,8 @@ import java.nio.charset.Charset
 import java.io.ByteArrayOutputStream
 import play.api.mvc.Codec
 import java.io.ByteArrayInputStream
+import models.Profile
+import events.MessageEventPublisher
 
 trait RequestInfoMixin {
   import Play.current
@@ -171,7 +173,9 @@ object MessageController extends Controller with RequestInfoMixin {
           created = DateTime.now(),
           modified = Some(DateTime.now()))
 
-        WeChatMessageCRUD.res.insert(msg).map { _ =>
+        //todo: perform immediate routing to downstream client for taking respond
+        WeChatMessageCRUD.res.insert(msg).map { id =>
+          MessageEventPublisher.genMessageArrivedEvent(appId, id.stringify)
           Ok(echoString)
         }
     } getOrElse Future.successful(BadRequest(""))

@@ -2,7 +2,10 @@ name := """ammsghub"""
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val libcore = (project in file("./modules/play2-lib-core")).enablePlugins(PlayScala)
+lazy val libjscrud = (project in file("./modules/play2-jscrud")).enablePlugins(PlayScala)
+
+lazy val root = (project in file(".")).enablePlugins(PlayScala).dependsOn(libcore, libjscrud)
 
 scalaVersion := "2.11.1"
 

@@ -51,7 +51,7 @@ object Message {
         Logger.info(s"invoking callback url to: ${url} for appId: ${appId}")
         WS.url(url).withQueryString(("msgId", msgId)).get().map {
           case resp: WSResponse =>
-            if (resp.status == HttpStatus.SC_OK && resp.body == "ok")
+            if (resp.status == HttpStatus.SC_OK)
               updateMsgStatus(msgId, MessageStatus.Notified)
           case _ =>
         }

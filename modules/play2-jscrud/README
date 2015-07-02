@@ -1,0 +1,22 @@
+This is your new Play application
+=================================
+
+This file will be packaged with your application, when using `activator dist`.
+
+
+feature list:
+
+v change the better theme
+v enable datatable and sorting and searching
+v allow user to customize the column name
+
+allow user to customise the edit page
+enable batch delete
+enable slick version (or define an API for data service)
+add support notification
+enable the data validation and logic
+multi language
+
+basic config flow
+1) add dependencies sbt
+2) define a person

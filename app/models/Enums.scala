@@ -48,3 +48,12 @@ object ProfileType extends Enum[ProfileType] with SimpleEnumJson[ProfileType] {
   case object WeChat extends ProfileType
   val values = List(WeChat)
 }
+
+sealed trait MessageType extends MessageType.Value
+object MessageType extends Enum[MessageType] with SimpleEnumJson[MessageType] {
+  case object Subscribed extends MessageType
+  case object MessageArrived extends MessageType
+  case object Keywords extends MessageType
+
+  val values = List(Subscribed, MessageArrived, Keywords)
+}

@@ -1,0 +1,79 @@
+@* main Template File *@
+@import net.amoeba.play2.jscrud.models._
+@(title: String, jscrudParam:Option[JSCRUDParam] )(content: Html)
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+		<meta charset="UTF-8">
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+        <meta name="description" content="Amoeba Consulting Ltd - play2 JsCRUD Module">
+        <meta name="keywords" content="JsCRUD playframework2">
+        <title>@title</title>
+        
+        <link rel="stylesheet" media="screen" href="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/bootstrap/dist/css/bootstrap.css")">
+        <link rel="stylesheet" media="screen" href="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/json-formatter/dist/json-formatter.css")">
+        
+        <link rel="stylesheet" media="screen" href="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("theme/css/font-awesome.min.css")">
+        <link rel="stylesheet" media="screen" href="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("theme/css/ionicons.min.css")">
+
+		<link rel="stylesheet" media="screen" href="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("theme/css/googlefont.css")">
+		<link rel="stylesheet" media="screen" href="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("theme/css/style.css")">
+		<link rel="stylesheet" media="screen" href="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("theme/css/custom.css")">
+
+<link rel="stylesheet" media="screen" href="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/angular-datatables/dist/plugins/bootstrap/datatables.bootstrap.css")">
+<link rel="stylesheet" media="screen" href="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/sweetalert/lib/sweet-alert.css")">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/html5shiv/dist/html5shiv.js")"></script>
+		  <script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/respond/respond.min.js")"></script>
+        <![endif]-->        
+
+		
+		
+		
+<script>
+	window.jsonSchemaUrl = "@jscrudParam.map(_.schemaUrl).getOrElse("")"; 
+	window.restUrl = "@jscrudParam.map(_.restUrl).getOrElse("")";
+	window.columns = @Html(jscrudParam.map(_.columnsAsJson.toString).getOrElse("[]"));
+	window.dictionary = @Html(jscrudParam.map(_.dictionaryAsJson.toString).getOrElse("{}"));
+</script>
+
+    </head>
+    <body class="skin-black">
+        
+
+		@inc.nav(title)
+		
+		<div class="wrapper row-offcanvas row-offcanvas-left" ng-app="jscrud">
+            @content
+        </div>
+        
+        <script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/jquery/dist/jquery.min.js")"></script>
+        <script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/datatables/media/js/jquery.dataTables.min.js")"></script>
+        
+        <script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/bootstrap/dist/js/bootstrap.min.js")"></script>
+		
+        <script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/angular/angular.min.js")"></script>
+        <script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/angular-flash-alert/dist/angular-flash.min.js")"></script>
+        <script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/angular-datatables/dist/angular-datatables.min.js")"></script>
+        <script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/angular-datatables/dist/plugins/bootstrap/angular-datatables.bootstrap.min.js")"></script>
+		<script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/angular-sanitize/angular-sanitize.min.js")"></script>
+		<script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/tv4/tv4.js")"></script>
+		<script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/objectpath/lib/ObjectPath.js")"></script>
+		<script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/angular-schema-form/dist/schema-form.min.js")"></script>
+		<script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/angular-schema-form/dist/bootstrap-decorator.min.js")"></script>
+		<script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/angular-route/angular-route.js")"></script>
+		<script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/angular-resource/angular-resource.js")"></script>
+		<script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/json-formatter/dist/json-formatter.js")"></script>
+		<script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/sweetalert/lib/sweet-alert.min.js")"></script>
+		<script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("bower_components/angular-sweetalert/SweetAlert.min.js")"></script>
+
+		<script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("theme/js/Director/app.js")"></script>
+        <script type="text/javascript" src="@net.amoeba.play2.jscrud.controllers.routes.Assets.at("javascripts/app.js")" ></script>
+    </body>
+</html>
+

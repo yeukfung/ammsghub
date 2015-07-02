@@ -1,0 +1,20 @@
+@import net.amoeba.play2.jscrud.models.MenuItem
+@(menus: List[MenuItem])(implicit rh:RequestHeader)
+
+            <!-- Left side column. contains the logo and sidebar -->
+            <aside class="left-side sidebar-offcanvas">
+                <section class="sidebar">
+                    <!-- sidebar menu: : style can be found in sidebar.less -->
+                    <ul class="sidebar-menu">
+                    @menus.map { menu =>
+                        <li @if(rh.uri.startsWith(menu.url)) { class="active" }>
+                            <a @if(rh.uri.startsWith(menu.url)) { href="" } else { href="@menu.url" }>
+                                <i class="fa @menu.icon"></i> <span>@menu.title</span>
+                            </a>
+                        </li>
+					} 
+
+                    </ul>
+                </section>
+                <!-- /.sidebar -->
+            </aside>

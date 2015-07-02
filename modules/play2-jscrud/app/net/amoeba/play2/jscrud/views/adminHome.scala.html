@@ -1,0 +1,19 @@
+@import net.amoeba.play2.jscrud.models.MenuItem
+@(title:String)(implicit rh:RequestHeader, menus:List[MenuItem])
+
+@main("MasterData", None) {
+
+@inc.menu(menus)
+
+            <!-- Right side column. Contains the navbar and content of the page -->
+            <div class="right-side">
+
+                <section class="content">
+					Master Data Management Home page 
+                </section>
+            </div>
+            <div class="footer-main">
+                Copyright &copy Amoeba Consulting Ltd - JSCRUD, 2015
+            </div>
+
+}

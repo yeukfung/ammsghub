@@ -42,12 +42,5 @@ object Global extends GlobalSettings {
     MessageEventPublisher.removeSubscriptions()
   }
 
-  override def onRouteRequest(rh: RequestHeader): Option[Handler] = {
-    rh.headers.get("Content-Type") match {
-      case Some("text/xml") => rh.headers
-      case _ => rh.headers
-    }
-    super.onRouteRequest(rh)
-  }
 
 }
