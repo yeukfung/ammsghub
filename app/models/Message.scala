@@ -76,3 +76,37 @@ case class WeChatMessage(
   contentType: String,
   created: DateTime,
   modified: Option[DateTime]) extends Message
+
+
+object WeChatMessage {
+  def xmlText(fromUserId:String, toUserId:String, createTime:String, content:String) = <xml>
+<ToUserName>{toUserId}</ToUserName>
+<FromUserName>{fromUserId}</FromUserName>
+<CreateTime>{createTime}</CreateTime>
+<MsgType>text</MsgType>
+<Content>{content}</Content>
+</xml>
+
+}
+
+import amcore.play2.PlayMixin
+object MessageCache extends PlayMixin {
+  import org.joda.time.DateTime
+
+  lazy val expireInHour = conf.getInt("app.messagecache.expireInHour").getOrElse(1)
+  private var userMsgMap:Map[String, DateTime] = Map.empty
+
+  def lookup(u:String) = {
+    cleanExpired()
+    userMsgMap.get(u).isDefined
+  }
+
+  def mark(u:String) = {
+    val newExpiry = DateTime.now.plusHours(expireInHour)
+    userMsgMap = userMsgMap + (u -> newExpiry)
+  }
+
+  private def cleanExpired() = {
+    userMsgMap = userMsgMap.filter { case (key, expireTime) => DateTime.now.isBefore(expireTime) }
+  }
+}

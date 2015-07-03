@@ -5,9 +5,7 @@ import play.api.mvc.Action
 import scala.concurrent.Future
 import play.api.Logger
 import play.api.mvc.Request
-import models.WeChatMessage
-import models.Message
-import models.MessageStatus
+import models._
 import org.joda.time.DateTime
 import crud.reactivemongo.WeChatMessageCRUD
 import models.ModelFormats
@@ -165,19 +163,58 @@ object MessageController extends Controller with RequestInfoMixin {
          * [info] application - isValud: Some(true)
          */
         val contentType = request.contentType.getOrElse("")
+        val js = xml.map(mapXmlToJson(_)).getOrElse(None)
+
         val msg = WeChatMessage(appId = appId,
           raw = contentAsString,
-          json = xml.map(mapXmlToJson(_)).getOrElse(None),
+          json = js,
           status = MessageStatus.New,
           contentType = contentType,
           created = DateTime.now(),
           modified = Some(DateTime.now()))
 
         //todo: perform immediate routing to downstream client for taking respond
+        Logger.debug("converted json: " + js)
         WeChatMessageCRUD.res.insert(msg).map { id =>
           MessageEventPublisher.genMessageArrivedEvent(appId, id.stringify)
-          Ok(echoString)
+          js.flatMap { case json =>
+
+            import amcore.utils.JsonHelper._
+
+            val profileId = appId
+
+            val fromUser = js2str(json \ "FromUserName")
+            val toUser = js2str(json \ "ToUserName")
+            val createTime = js2str(json \ "CreateTime")
+
+            val autoResp:Option[AutoResponse] = js2str(json \ "MsgType") match {
+              case "event" => 
+                if( js2str(json \ "Event") == "subscribe") {
+                  AutoResponse.findBy(appId, MessageType.Subscribed)                    } else None
+
+              case "text" => 
+                  val msgArrivedResponse = if( MessageCache.lookup(fromUser) )
+                    { None } else {
+                      MessageCache.mark(fromUser)
+                      AutoResponse.findBy(appId, MessageType.MessageArrived)
+                    }
+                  
+                  val keywordResponse = AutoResponse.findByKeyword(appId, js2str(json \ "Content"))
+//                  val keywordResponse = None
+
+                  List(keywordResponse, msgArrivedResponse).filter(_.isDefined).headOption.flatten
+
+              case _ => None
+            }
+
+            autoResp.map { ar =>
+              val xml = WeChatMessage.xmlText(toUser, fromUser, createTime, ar.content)
+              Ok(xml)
+            }
+
+          } getOrElse ( Ok(echoString) )
         }
+
     } getOrElse Future.successful(BadRequest(""))
 
   }

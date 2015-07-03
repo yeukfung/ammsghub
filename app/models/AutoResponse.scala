@@ -3,8 +3,8 @@ package models
 import org.joda.time.DateTime
 import play.api.libs.json.JsObject
 import reactivemongo.bson.BSONObjectID
-import play.api.libs.json.Json
-import crud.reactivemongo.WeChatMessageCRUD
+import play.api.libs.json._
+import crud.reactivemongo._
 import ModelFormats._
 import play.api.libs.ws.WS
 import play.api.libs.ws.WSResponse
@@ -23,16 +23,27 @@ case class AutoResponse (
 
 object AutoResponse {
  
-  def createOrSave(autoResponse: AutoResponse) = {
-     ???
+
+  import amcore.utils.JsonQueryHelper._
+  import scala.concurrent.ExecutionContext.Implicits._
+  import scala.concurrent.duration.Duration
+  import scala.concurrent.Await
+
+  val dur = Duration(3, "seconds")
+
+  def findBy(profileId:String, msgType:MessageType):Option[AutoResponse] = {
+    val q = qAll("profileIds" , Json.arr(JsString(profileId))) ++ qEq("msgType", msgType.toString)
+    Await.result(AutoResponseCRUD.res.find(q), dur).headOption.map(_._1)
   }
 
-  def deleteById(id:Long) = {
-   ???
-  }
+  def findByKeyword(profileId:String, userMessage:String):Option[AutoResponse] = {
 
-  def getAllAutoReponse(msgType:MessageType) = {
-   ???
-  }
+    val q = qEq("profileIds" , profileId) ++ qEq("msgType", MessageType.Keywords.toString)
 
+    val keywordList = Await.result(AutoResponseCRUD.res.find(q), dur)
+
+    keywordList.filter{ case (ar, arId) =>
+      ar.keywords.filter(kw => userMessage.toLowerCase.contains(kw.toLowerCase)).size > 0
+    }.headOption.map(_._1)
+  }
 }
