@@ -54,13 +54,13 @@ app.controller('ItemListController', ['$scope', 'cfg', 'RestAPI', 'DTOptionsBuil
 
   var renderFunction =  function(dataId, type, full) {
         if (dataId)
-          return cfg.dictionary[key][dataId];
+          return (cfg.dictionary[key][dataId] === undefined)?null:cfg.dictionary[key][dataId];
         else
           return null;
       };
 
   for ( var key in cfg.columns) {
-    if (cfg.dictionary[key] === null)
+    if (cfg.dictionary[key] === undefined)
       cols.push(DTColumnBuilder.newColumn(key).withTitle(cfg.columns[key].title).withOption('defaultContent', '-'));
     else
       cols.push(DTColumnBuilder.newColumn(key).withTitle(cfg.columns[key].title).withOption('defaultContent', '-').renderWith(renderFunction));

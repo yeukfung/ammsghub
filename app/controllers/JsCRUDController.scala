@@ -42,5 +42,12 @@ object AutoResponseCRUDAdminController extends JSCRUDAdminController with Defaul
 
   val jscrudParam = JSCRUDParam(
     schemaUrl = controllers.routes.AutoResponseSchemaGen.genJsSchema().url,
-    restUrl = "/api/autoresponse/:id") 
+    restUrl = "/api/autoresponse/:id",
+    columns = Map(
+      "msgType" -> ColumnParam("Message Type"),
+      "content" -> ColumnParam("Auto Reply Content"),
+      "name" -> ColumnParam("Keyword Tag"),
+      "keywords" -> ColumnParam("Keywords"),
+      "profileIds" -> ColumnParam("Wx AppIds")
+      ))  
 }

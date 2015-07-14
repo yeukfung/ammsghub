@@ -4,6 +4,7 @@ import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.libs.json.JsValue
 import play.api.libs.json.JsArray
+import org.joda.time.DateTime
 
 object JsonQueryHelper {
 
@@ -16,6 +17,7 @@ object JsonQueryHelper {
     /** smart wrap to detect if double quote is required base on the content type **/
     private def smartWrap[T](fv: T) = fv match {
         case v: String => s""""$v""""
+        case v: DateTime => v.getMillis
         case _         => fv
     }
     private def f2[T](fn: String, fv: T) = s"""{"$fn" : ${smartWrap(fv)} }""" //field 2
@@ -35,6 +37,12 @@ object JsonQueryHelper {
     
     /** all **/
     def qAll[T](fn: String, fv: JsArray): JsObject = jp(f3(fn, fv, "all"))
+   
+    /** array functions **/
+    def qAddToSet[T](fn: String, fv: T): JsObject = jp(f3(fn, fv, "addToSet"))
+    def qPush[T](fn: String, fv: T): JsObject = jp(f3(fn, fv, "push"))
+    def qPull[T](fn: String, fv: T): JsObject = jp(f3(fn, fv, "pull"))
+    def qPullAll[T](fn: String, fv: T): JsObject = jp(f3(fn, fv, "pullAll"))
 
     /** or **/
     def qOr[T](objs: JsObject*): JsObject = {

@@ -207,6 +207,8 @@ object MessageController extends Controller with RequestInfoMixin {
               case _ => None
             }
 
+            Logger.info(s"Auto Respond: $autoResp")
+
             autoResp.map { ar =>
               val xml = WeChatMessage.xmlText(toUser, fromUser, createTime, ar.content)
               Ok(xml)

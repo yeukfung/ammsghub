@@ -13,6 +13,7 @@ class ESIndex(esClient:ESClient, indexName:String) {
 
   def index = esClient.index(indexName) _
   def get = esClient.get(indexName) _
+  def updatePartial = esClient.updatePartial(indexName) _
 
 }
 
@@ -61,20 +62,28 @@ class ESClient(esURL: String, dataLogger:Option[Logger] = None) {
     WS.url(url).get
   }
 
+  def updatePartial(index:String)(`type`: String, id: String, dataIn:JsObject): Future[Response] = {
+    val url = baseUrl(index, `type`, s"$id/_update")
+    WS.url(url).post(Json.obj("doc" -> dataIn))
+  }
+
   def index(index: String)(`type`: String, id: Option[String], dataIn: JsObject): Future[Response] = {
     val url = baseUrl(index, `type`, id.getOrElse(""))
     val data = Json.obj(
       "@timestamp" -> DateTime.now.withZone(DateTimeZone.UTC).toString("yyyy-MM-dd'T'HH:mm:ss")) ++ dataIn
     
-    Logger.info(s"indexing data: $data with url: $url")
+//    Logger.info(s"indexing data: $data with url: $url")
     dataLogger.map { logger =>
       val dataToLog = s"${`type`},${id.getOrElse("")},$data"
       logger.info(dataToLog)
     }
     id match {
       case Some(id) =>
-        if(id == "_mapping") Logger.info(s"mapping data, url = $url with data: $data")
-        WS.url(url).put(data)
+        if(id == "_mapping") {
+          Logger.info(s"mapping data, url = $url with data: $dataIn")
+          WS.url(url).put(dataIn)
+        } else 
+          WS.url(url).put(data)
       case None =>
         WS.url(url).post(data)
     }
